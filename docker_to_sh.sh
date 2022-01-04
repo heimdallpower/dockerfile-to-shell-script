@@ -33,8 +33,9 @@ sed -i "s/^ADD\s/cp /g" $OUTPUT
 sed -i "s/^ARG\s/export /g" $OUTPUT
 
 # Convert WORKDIR to mkdir and insert cd after
-sed -i '/^WORKDIR/a cd \$_' $OUTPUT
-sed -i "s/^WORKDIR\s/mkdir -p /g" $OUTPUT
+sed -i '/^WORKDIR/a cd $FOLDER\' $OUTPUT
+sed -i '/^WORKDIR/a mkdir -p $FOLDER\' $OUTPUT
+sed -i "s/^WORKDIR\s/FOLDER=/g" $OUTPUT
 
 # Convert COPY to cp
 sed -i "s/^COPY\s/cp /g" $OUTPUT
