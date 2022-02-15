@@ -49,6 +49,9 @@ sed -i "s/add-apt-repository\s/sudo add-apt-repository /g" $OUTPUT
 # Run sh commands as sudo
 sed -i "s/^sh\s/sudo sh /g" $OUTPUT
 
+# Run make install commands as sudo
+sed -i "s/[[:space:]]make\s/ sudo make /g" $OUTPUT
+
 # Cd to the right place before cloning repos (using comments to insert)
 # Could also just insert on empty lines to make sure we are in the right directory?
 sed -i '/Clone/a cd $FOLDER\' $OUTPUT
