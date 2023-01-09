@@ -16,9 +16,14 @@ sed -i "s/^FROM\s/# FROM /g" $OUTPUT
 sed -i "s/^MAINTAINER\s/# MAINTAINER /g" $OUTPUT
 sed -i "s/^VOLUME\s/# VOLUME /g" $OUTPUT
 
+# Save working directory and cd back to it after RUN commands
+sed -i '/^RUN/i workdir=$PWD' $OUTPUT
+sed -i -r '/^RUN.*\\$/!b;:a;n;/(^\s*#|.*\\)/ba;a cd $workdir' $OUTPUT # Add cd after multiline RUN command
+sed -i -e '/^RUN/ {/.*\\$/!a cd $workdir' -e '}' $OUTPUT # Add cd after single line RUN command
+
 # Get rid of RUNs
-sed -i "s/^RUN\s//g" $OUTPUT
-sed -i 's|^\\$||g' $OUTPUT
+sed -i 's/^RUN\s//g' $OUTPUT
+sed -i '/^\\$/d' $OUTPUT
 
 # Convert ENVs into EXPORTs
 sed -i "s/^ENV\s/export /g" $OUTPUT
@@ -33,22 +38,19 @@ sed -i "s/^ADD\s/cp /g" $OUTPUT
 sed -i "s/^ARG\s/export /g" $OUTPUT
 
 # Convert WORKDIR to mkdir and insert cd after
-sed -i '/^WORKDIR/a cd $FOLDER\' $OUTPUT
-sed -i '/^WORKDIR/a mkdir -p $FOLDER\' $OUTPUT
-sed -i "s/^WORKDIR\s/FOLDER=~/g" $OUTPUT
+sed -i '/^WORKDIR/a cd $workdir\' $OUTPUT
+sed -i '/^WORKDIR/a mkdir -p $workdir\' $OUTPUT
+sed -i "s/^WORKDIR\s/workdir=~/g" $OUTPUT
 
 # Convert COPY to cp
 sed -i "s/^COPY\s/cp /g" $OUTPUT
 
-# Change to the correct directory before cloning repos
-sed -i '/git clone/i cd $FOLDER' $OUTPUT
-
-# Save working directory
-sed -i '2s/^/CURR_DIR=$PWD\n/' $OUTPUT
+# Save root directory
+sed -i '2s/^/ROOT_DIR=$PWD\n/' $OUTPUT
 
 # Fix opencv fix
 sed -i 's/^cp\s/sudo cp /g' $OUTPUT
-sed -i 's|drone_cicd|$CURR_DIR/drone_cicd|g' $OUTPUT
+sed -i 's|drone_cicd|$ROOT_DIR/drone_cicd|g' $OUTPUT
 
 # Run some commands as superuser
 sed -i -r 's/(^|\s)(ln|dpkg-reconfigure|apt-get|apt-key|add-apt-repository|sh|mv|rm|make)\s/\1sudo \2 /g' $OUTPUT
