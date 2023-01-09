@@ -40,21 +40,8 @@ sed -i "s/^WORKDIR\s/FOLDER=~/g" $OUTPUT
 # Convert COPY to cp
 sed -i "s/^COPY\s/cp /g" $OUTPUT
 
-# Run apt-get commands as sudo
-sed -i "s/apt-get\s/sudo apt-get /g" $OUTPUT
-
-# Run apt add repo commands as sudo
-sed -i "s/add-apt-repository\s/sudo add-apt-repository /g" $OUTPUT
-
-# Run sh commands as sudo
-sed -i "s/^sh\s/sudo sh /g" $OUTPUT
-
-# Run make install commands as sudo
-sed -i "s/[[:space:]]make\s/ sudo make /g" $OUTPUT
-
-# Cd to the right place before cloning repos (using comments to insert)
-# Could also just insert on empty lines to make sure we are in the right directory?
-sed -i '/Clone/a cd $FOLDER\' $OUTPUT
+# Change to the correct directory before cloning repos
+sed -i '/git clone/i cd $FOLDER' $OUTPUT
 
 # Save working directory
 sed -i '2s/^/CURR_DIR=$PWD\n/' $OUTPUT
@@ -62,6 +49,12 @@ sed -i '2s/^/CURR_DIR=$PWD\n/' $OUTPUT
 # Fix opencv fix
 sed -i 's/^cp\s/sudo cp /g' $OUTPUT
 sed -i 's|drone_cicd|$CURR_DIR/drone_cicd|g' $OUTPUT
+
+# Run some commands as superuser
+sed -i "s/\(^\|\s\)\(ln\|dpkg-reconfigure\|apt-get\|apt-key\sadd\|add-apt-repository\|sh\|mv\|rm\|make\)\s/\1sudo \2 /g" $OUTPUT
+
+# Enable testing with catkin
+sed -i "s/-DCATKIN_ENABLE_TESTING=False/-DCATKIN_ENABLE_TESTING=True/" $OUTPUT
 
 # Make the output script executable
 chmod +x $OUTPUT
