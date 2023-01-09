@@ -51,7 +51,7 @@ sed -i 's/^cp\s/sudo cp /g' $OUTPUT
 sed -i 's|drone_cicd|$CURR_DIR/drone_cicd|g' $OUTPUT
 
 # Run some commands as superuser
-sed -ri 's/(^|\s)(ln|dpkg-reconfigure|apt-get|apt-key|add-apt-repository|sh|mv|rm|make)\s/\1sudo \2 /g' $OUTPUT
+sed -i -r 's/(^|\s)(ln|dpkg-reconfigure|apt-get|apt-key|add-apt-repository|sh|mv|rm|make)\s/\1sudo \2 /g' $OUTPUT
 
 # Enable testing with catkin
 sed -i 's/-DCATKIN_ENABLE_TESTING=False/-DCATKIN_ENABLE_TESTING=True/' $OUTPUT
