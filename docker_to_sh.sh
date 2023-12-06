@@ -4,10 +4,9 @@
 # Almost guaranteed to not work with many Docker files, but hey, it works for us
 
 INPUT=$1
-# Use the extension of the dockerfile as file name of the output file
-filename=$(basename -- "$INPUT")
-extension="${filename##*.}"
-OUTPUT=$(dirname $(dirname $INPUT))/scripts/install_$extension.sh
+# Use the name of the dockerfile (without extension) as file name of the output file
+filename=$(basename "$INPUT" .Dockerfile)
+OUTPUT=$(dirname $(dirname $INPUT))/scripts/install_$filename.sh
 
 cp -f $INPUT $OUTPUT
 
